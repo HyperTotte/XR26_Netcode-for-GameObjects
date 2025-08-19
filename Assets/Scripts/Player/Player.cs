@@ -29,4 +29,9 @@ public class Player : NetworkBehaviour
         // Apply movement on the server
         transform.position += move;
     }
+
+    public void TrySetName(string requestedName)
+    {
+        RequestNameServerRpc(requestedName);
+    }
 }
