@@ -1,19 +1,23 @@
 using UnityEngine;
-using System.Collections.Generic;
-using Unity.Netcode;
 
-public static class GameSession
+public class GameSession : MonoBehaviour
 {
-    public static Dictionary<ulong, string> PlayerNames = new Dictionary<ulong, string>();
-    public static string LocalPlayerName
+    public static GameSession Instance { get; private set; } // start of singelton
+    public string LocalPlayerName { get; private set; } //storage for user name. 
+
+    private void Awake()
     {
-        get
+        if (Instance != null && Instance != this) //ensure only one instance is.
         {
-            if (NetworkManager.Singleton != null && PlayerNames.TryGetValue(NetworkManager.Singleton.LocalClientId, out var name))
-            {
-                return name;
-            }
-            return "Unknown";
+            Destroy(gameObject);
+            return;
         }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    public void SetLocalPlayerName(string name) //so MainMenuUI can set name. 
+    {
+        LocalPlayerName = name;
     }
 }
