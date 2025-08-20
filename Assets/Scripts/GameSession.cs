@@ -2,13 +2,12 @@ using UnityEngine;
 
 public class GameSession : MonoBehaviour
 {
-   public static GameSession Instance { get; private set; }
-
-    public string LocalPlayerName { get; private set; }
+    public static GameSession Instance { get; private set; } // start of singelton
+    public string LocalPlayerName { get; private set; } //storage for user name. 
 
     private void Awake()
     {
-        if(Instance != null && Instance != this)
+        if (Instance != null && Instance != this) //ensure only one instance is.
         {
             Destroy(gameObject);
             return;
@@ -17,7 +16,7 @@ public class GameSession : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void SetLocalPlayerName(string name)
+    public void SetLocalPlayerName(string name) //so MainMenuUI can set name. 
     {
         LocalPlayerName = name;
     }
