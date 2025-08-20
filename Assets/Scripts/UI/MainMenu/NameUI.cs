@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Netcode;
 
-public class NameUI : MonoBehaviour
+public class NameUI : NetworkBehaviour
 {
     [SerializeField] private InputField nameInput;
     [SerializeField] private Button confirmButton;
@@ -28,13 +29,11 @@ public class NameUI : MonoBehaviour
         if (string.IsNullOrEmpty(name))
         {
             ShowError("Please enter a name.");
+            errorText.gameObject.SetActive(true);
             return;
         }
-        var localPlayer = FindObjectOfType<Player>();
-        if (localPlayer != null)
-        {
-            localPlayer.TrySetName(name);
-        }
+
+        RequestNameServerRpc(name); // sends a request to see if name avabile. 
     }
 
     // Update is called once per frame
@@ -47,5 +46,44 @@ public class NameUI : MonoBehaviour
     public void HideError()
     {
         errorText.gameObject?.SetActive(false);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestNameServerRpc(string name, ServerRpcParams rpcParams = default)
+    {
+        ulong senderId = rpcParams.Receive.SenderClientId;
+
+        foreach (var kvp in GameSession.PlayerNames)
+        {
+            if (kvp.Value == name)
+            {
+                NameRejectedClientRpc(senderId, "Name already taken.");
+                return;
+            }
+                
+        }
+
+        GameSession.PlayerNames[senderId] = name; // save name
+        NameAcceptedClientRpc(senderId);
+
+    }
+
+    [ClientRpc]
+    private void NameRejectedClientRpc(ulong targetId, string reason)
+    {
+        if (NetworkManager.singleton.LocalclientId == targetId)
+        {
+            errorText.text = reason;
+            errorText.gameObject.SetActive(true);
+        }
+    }
+
+    [ClientRpc]
+    private void NameAcceptedClientRpc(ulong targetId)
+    {
+        if (NetworkManager.Singleton.LocalClientId == targetId)
+        {
+            panel.SetActive(false);
+        }
     }
 }

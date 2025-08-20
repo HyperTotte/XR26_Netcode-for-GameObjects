@@ -14,7 +14,7 @@ public class MainMenuDisplay : MonoBehaviour
     {
         if (nameInput != null)
         {
-            nameInput.text = GameSession.PlayerName;
+            nameInput.text = GameSession.LocalPlayerName;
         }
     }
 
@@ -22,7 +22,7 @@ public class MainMenuDisplay : MonoBehaviour
     {
         if (nameInput != null && !string.IsNullOrWhiteSpace(nameInput.text))
         {
-            GameSession.PlayerName = nameInput.text.Trim();
+            GameSession.LocalPlayerName = nameInput.text.Trim();
         }
     }
 
